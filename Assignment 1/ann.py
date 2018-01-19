@@ -1,30 +1,74 @@
 from random import uniform as uf
 
 class Network:
+	"""docstring for Network""" # TODO: Add description
 
-	accurcy = 0
+	def __init__(self, inodes = 1,hnodes = [],onodes = 1):
+		# TODO: To be able to choose normalization func/layer
+		self.accurcy = 0
+		self.ilayer = []
+		self.hlayer = []
+		self.olayer = []
+		
+		# Create input layer
+		if len(hnodes) > 0: oedges = hnodes[0]
+		else: oedges = onodes
+		self.ilayer = self.__build_layer(inodes,oedges,None)
 
-	def __init__(self, num_inputs = 1,hidden = [1],num_output = 1):
-		self.ilayer = num_inputs
-		self.hlayers = hidden
-		self.nlayers = len(hidden)
-		self.olayer = num_output
+		# Create output layer
+		self.olayer = self.__build_layer(onodes,0,None)
+
+		# Create hidden layers
+		for x in range(0,len(hnodes)):
+			if x == (len(hnodes) - 1): oedges = onodes
+			else: oedges = hnodes[x+1]
+			self.hlayer.append(self.__build_layer(hnodes[x],oedges,None))
+
+	def __build_layer(self,nodes,oedges,func):
+		layer = []
+		for x in range(0,nodes): layer.append(NetworkNode(oedges = oedges,func = func))
+		return layer
 
 	def training(self,tset):
-		"""x is the trainingset """
-		pass
+		"""tset is the trainingset """
+		pass # TODO: Fix function
+
+	def classify(self,x):
+		"""x is the array to be classifyed by the network """
+		pass # TODO: Fix function
 
 class NetworkNode(object):
-	"""docstring for NetworkNode"""
-	def __init__(self, num_output = 1):
-		weights = []
-		for x in range(0,num_output):
-			weights.append(uf(-1,1))
-		self.value = (uf(0,1),weights)
-		
-net = Network()
-node = NetworkNode(20)
+	""" One of the nodes in the ANN
+		The node takes inputs by the 'input' methode,
+		it outputs a normilized value with the 'output' method
+		and resets it's value with 'reset'"""
 
-print(node.value)
+	def __init__(self, oedges,func):
+		""" num_outputs is the number of outputnodes in the next layer
+			func is the normalization function """
+		self.weights = []
+		self.value = 0
+		self.__normal_func = func
 
-print(net.training(4))
+		# Fill node with random weights
+		for x in range(0,oedges):
+			self.weights.append(uf(-1,1))
+
+	def input(self,input):
+		""" Takes one input and add it to the current value """
+		self.value += input
+
+	def output(self):
+		""" Return sum of all inputs after normalization """
+		if self.__normal_func == None:
+			return self.value
+		elif self.__normal_func == 'Some other function':
+			# Normalize with function and return
+			normalized = self.__normal_func
+			return normalized
+		else: return 0
+		# TODO: Add normalization functions
+
+	def reset(self):
+		self.value = 0
+
