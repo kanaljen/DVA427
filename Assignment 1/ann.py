@@ -1,3 +1,4 @@
+import numpy as np
 from random import uniform as uf
 
 class Network:
@@ -46,13 +47,13 @@ class NetworkNode(object):
 	def __init__(self, oedges,func):
 		""" num_outputs is the number of outputnodes in the next layer
 			func is the normalization function """
-		self.weights = []
+		self.weights = np.array([])
 		self.value = 0
 		self.__normal_func = func
 
 		# Fill node with random weights
 		for x in range(0,oedges):
-			self.weights.append(uf(-1,1))
+			self.weights = np.append(self.weights,uf(-1,1))
 
 	def input(self,input):
 		""" Takes one input and add it to the current value """
@@ -71,4 +72,4 @@ class NetworkNode(object):
 
 	def reset(self):
 		self.value = 0
-
+		
