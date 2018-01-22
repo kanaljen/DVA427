@@ -1,77 +1,77 @@
 import numpy as np
 from random import uniform as uf
 
-class Network:
-	"""docstring for Network""" # TODO: Add description
+class Network(object):
+	""" A neural network""" # TODO: Add description
 
-	def __init__(self, inodes = 1,hnodes = [],onodes = 1):
-		# TODO: To be able to choose normalization func/layer
+	def __init__(self, inodes = 1,hnodes = [],onodes = 1,func = None):
+
 		self.accurcy = 0
-		self.ilayer = []
 		self.hlayer = []
-		self.olayer = []
+		self.func = func
 		
 		# Create input layer
-		if len(hnodes) > 0: oedges = hnodes[0]
-		else: oedges = onodes
-		self.ilayer = self.__build_layer(inodes,oedges,None)
+		self.ilayer = Layer(size = inodes)
 
 		# Create output layer
-		self.olayer = self.__build_layer(onodes,0,None)
+		if len(hnodes) > 0: incedges = hnodes[len(hnodes)-1]
+		else: incedges = inodes
+		self.olayer = Layer(size = onodes,incedges = incedges)
 
 		# Create hidden layers
 		for x in range(0,len(hnodes)):
-			if x == (len(hnodes) - 1): oedges = onodes
-			else: oedges = hnodes[x+1]
-			self.hlayer.append(self.__build_layer(hnodes[x],oedges,None))
+			if x == 0: incedges = inodes
+			else: incedges = hnodes[x-1]
+			self.hlayer.append(Layer(size = hnodes[x], incedges = incedges))
 
-	def __build_layer(self,nodes,oedges,func):
-		layer = []
-		for x in range(0,nodes): layer.append(NetworkNode(oedges = oedges,func = func))
-		return layer
+	def __activ_func(self,func,vector):
+		""" Activation functions for the network, called by the classify method """
+		if func == 'tanh':
+			return np.tanh(vector)
+		elif func == 'sig':
+			return 1 / (1 + np.exp(-vector))
+		else:
+			return vector
 
 	def training(self,tset):
 		"""tset is the trainingset """
 		pass # TODO: Fix function
 
 	def classify(self,x):
-		"""x is the array to be classifyed by the network """
-		if len(self.ilayer) != len(x):
-			print("Network-input size doesn't match argument size")
+		"""x is a list to be classifyed by the network """
+
+		# Break if size of input != x
+		if len(self.ilayer.values) != len(x):
+			print("Network-input size doesn't match argument-size")
 			return 0
 
-class NetworkNode(object):
-	""" One of the nodes in the ANN
-		The node takes inputs by the 'input' methode,
-		it outputs a normilized value with the 'output' method
-		and resets it's value with 'reset'"""
+		# Convert input to array, save it in ilayer
+		self.ilayer.values = np.array(x)
 
-	def __init__(self, oedges,func):
-		""" num_outputs is the number of outputnodes in the next layer
-			func is the normalization function """
-		self.weights = np.array([])
-		self.value = 0
-		self.__normal_func = func
+		# Loop hidden layers, for each determine previous layer 
+		for i in range(0,len(self.hlayer)): 
 
-		# Fill node with random weights
-		for x in range(0,oedges):
-			self.weights = np.append(self.weights,uf(-1,1))
+			prelayer = np.transpose(self.ilayer.values) if i == 0 else np.transpose(self.hlayer[i-1].values)
 
-	def input(self,input):
-		""" Takes one input and add it to the current value """
-		self.value += input
+			# Loop nodes in a layer
+			for j in range(0,len(self.hlayer[i].values)): # Loop nodes
+				self.hlayer[i].values[j] = self.__activ_func(self.func,np.dot(prelayer,self.hlayer[i].weights[j]))
 
-	def output(self):
-		""" Return sum of all inputs after normalization """
-		if self.__normal_func == None:
-			return self.value
-		elif self.__normal_func == 'Some other function':
-			# Normalize with function and return
-			normalized = self.__normal_func
-			return normalized
-		else: return 0
-		# TODO: Add normalization functions
+		# Determine previous layer for output
+		if len(self.hlayer) != 0:
+			prelayer = np.transpose(self.hlayer[len(self.hlayer)-1].values) 
+		else: 
+			prelayer = np.transpose(self.ilayer.values)
 
-	def reset(self):
-		self.value = 0
+		# Write output
+		self.olayer.values = self.__activ_func(self.func,np.dot(prelayer,self.olayer.weights))
 
+		return self.olayer.values
+
+class Layer(object):
+	""" A layer in the neural network """
+
+	def __init__(self, size, incedges = 0, func = None):
+		self.values = np.array(size *[0.])
+		self.weights = np.random.rand(size,incedges)
+		self.func = func
