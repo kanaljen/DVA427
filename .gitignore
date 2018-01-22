@@ -26,3 +26,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 Assignment 1/test.py
+
+__pycache__/

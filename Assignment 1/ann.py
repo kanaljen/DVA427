@@ -36,7 +36,9 @@ class Network:
 
 	def classify(self,x):
 		"""x is the array to be classifyed by the network """
-		pass # TODO: Fix function
+		if len(self.ilayer) != len(x):
+			print("Network-input size doesn't match argument size")
+			return 0
 
 class NetworkNode(object):
 	""" One of the nodes in the ANN
@@ -72,4 +74,4 @@ class NetworkNode(object):
 
 	def reset(self):
 		self.value = 0
-		
+
