@@ -43,7 +43,7 @@ class Network(object):
         n = 0.1 # n defines the learning rate
         h_layers = len(self.hlayer)
         n_nodes = len(self.hlayer[0].values)
-        i_edges = len(self.ilayer.values)
+        i_edges = len(self.ilayer.values)        
 
         for i in range(0,len(t_set)-700):
             if t_answ[i] == 1:
@@ -55,29 +55,33 @@ class Network(object):
             delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
             sum_w_delta = np.empty([h_layers,n_nodes])
             delta_hidden = np.empty([h_layers,n_nodes])
+            delta_weights = np.empty([h_layers+1,n_nodes,n_nodes])
 
             # Loop number of hidden layers
-            for j in range(h_layers,0,-1):                
+            for j in range(len(self.hlayer)+1,0,-1):
 
-                if ((j == h_layers) & (j > 0)):
+                if ((j == h_layers+1) & (j > 0)):
                     # Loop to get weights for output layer        
                     for a in range(0,n_nodes):
-                        self.olayer.weights[[j],[a]] = n*delta_output*self.hlayer[j-1].values[a]
-                        sum_w_delta[[j-1],[a]] = delta_output*self.olayer.weights[[0],[a]]
-                # Loop number of nodes per hidden layer
-                for k in range(0,n_nodes):                
-                    delta_hidden[[j],[k]] = self.hlayer[j].values[k]*(1-self.hlayer[j].values[k])*sum_w_delta[[j],[k]]
+                        delta_weights[j-1,0,a] = n*delta_output*self.hlayer[j-1].values[a]                        
+                        sum_w_delta[[j-2],[a]] = delta_output*self.olayer.weights[[0],[a]]
+                        self.olayer.weights[[0],[a]] = self.olayer.weights[[0],[a]]+n*delta_output*self.hlayer[j-1].values[a]
+                else:
+                    # Loop number of nodes per hidden layer
+                    for k in range(0,n_nodes):                
+                        delta_hidden[[j-1],[k]] = self.hlayer[j].values[k]*(1-self.hlayer[j].values[k])*sum_w_delta[[j-1],[k]]
 
-                    if j > 0:
-                        #Loop number of incoming nodes to hidden layers
-                        for b in range(0,n_nodes-1):
-                            self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
-                            sum_w_delta[[j-1],[b]] = sum_w_delta[[j-1],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
-                    else:
-                        #Loop number of incoming inputs to hidden layers
-                        for b in range(0,i_edges):
-                            self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
-                            #sum_w_delta[[j],[b]] = sum_w_delta[[j],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
+                        if j > 1:
+                            #Loop number of incoming nodes to hidden layers
+                            for b in range(0,n_nodes):
+                                delta_weights[j-1,k,b] = n*delta_hidden[[j-1],[k]]*self.hlayer[j-2].values[b]
+                                #self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
+                                sum_w_delta[[j-1],[b]] = sum_w_delta[[j-1],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
+                        else:
+                            #Loop number of incoming inputs to hidden layers
+                            for b in range(0,i_edges):
+                                self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
+                                #sum_w_delta[[j],[b]] = sum_w_delta[[j],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
         E_d = (1/2)*np.power((target-self.olayer.values),2)
         return E_d     
         
