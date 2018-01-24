@@ -31,47 +31,59 @@ class Network(object):
 		elif func == 'sig':
 			return 1 / (1 + np.exp(-vector))
 		else:
-			return vector
-	def training(self,t_set,t_answ):
-    	"""TODO
-   	 Nollställa alla värden på sum_w_delta[,] efter varje classify
-   	 Hur blir det vid input layer?
-   	 Hur fungerar mina loopar?
-  	  """
-   	n = 0.1 # n defines the learning rate
-    
-   	for i in range(0,len(t_set-700)):
-     	if t_answ[i] == 1:
-            target = 0.75
-        else:
-            target = 0.25
-        
-        self.olayer.values = classify(t_set)
-        delta_output = (target-self.olayer.values) * self.olayer.values * (1 - self.olayer.values)
-        
-        # Loop number of hidden layers
-        for j in range(1,0):                
-            
-        # Loop to get weights for output layer        
-            if j == 1:
-                for a in range(0,2):
-                    self.olayer.weights[a] = n*delta_output*self.hlayer[j-1].values[a]
-                    #sum_w_delta[j+1,a] = delta_output*(np.sum(self.olayer.weights))
-                
-            # Loop number of nodes per hidden layer
-            for k in range(2,0):                
-                delta_hidden[j,k] = self.hlayer[j].values[k]*(1-self.hlayer[j].values[k])*sum_w_delta[j+1,k]
-                
-                #loop number of incoming nodes to hidden layers
-                for b in range(0,2):
-                    if j > 0:
-                        self.hlayer[j].weights[b] = n*delta_hidden[j,k]*self.hlayer[j-1].values[b]
-                        sum_w_delta[j,b] = sum_w_delta[j,b]+delta_hidden[j,k]*self.hlayer[j].weights[b]
-                
-        
-            
-            
+			return vector            
 
+    def training(self,t_set,t_answ):
+        """
+        TODO
+        Nollställa alla värden på sum_w_delta[,] efter varje classify
+        Hur blir det vid input layer?
+        Hur fungerar mina loopar?
+        """
+        n = 0.1 # n defines the learning rate
+        h_layers = 2
+        n_nodes = 2
+        i_weights = 2
+        i_edges = len(t_set[0])
+
+        #for i in range(0,len(t_set-700)):
+        for i in range(0,1):
+            if t_answ[i] == 1:
+                target = 0.75
+            else:
+                target = 0.25
+
+            self.olayer.values = classify(t_set[i])
+            delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
+            sum_w_delta = np.empty([h_layers,n_nodes])
+            delta_hidden = np.empty([h_layers,n_nodes])
+
+            # Loop number of hidden layers
+            for j in range(h_layers,0):                
+
+                if ((j == h_layers) & (j > 0)):
+                    # Loop to get weights for output layer        
+                    for a in range(0,n_nodes-1):
+                        self.olayer.weights[[j],[a]] = n*delta_output*self.hlayer[j-1].values[a]
+                        sum_w_delta[[j-1],[a]] = delta_output*self.olayer.weights[[0],[a]]
+                else:
+                    # Loop number of nodes per hidden layer
+                    for k in range(0,n_nodes-1):                
+                        delta_hidden[[j],[k]] = self.hlayer[j].values[k]*(1-self.hlayer[j].values[k])*sum_w_delta[[j],[k]]
+
+                        if j > 0:
+                            #Loop number of incoming nodes to hidden layers
+                            for b in range(0,n_nodes-1):
+                                self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
+                                sum_w_delta[[j-1],[b]] = sum_w_delta[[j-1],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
+                        else:
+                            #Loop number of incoming inputs to hidden layers
+                            for b in range(0,i_edges):
+                                self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
+                                #sum_w_delta[[j],[b]] = sum_w_delta[[j],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
+        E_d = (1/2)*np.power((target-self.olayer.values),2)
+        return E_d     
+        
 	def classify(self,x):
 		"""x is a list to be classifyed by the network """
 
