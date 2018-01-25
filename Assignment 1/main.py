@@ -4,20 +4,21 @@ import numpy as np
 # Load dataset from file
 dataset = np.loadtxt('titanic.dat',delimiter=',')
 
-# Split data set
+# Split dataset, independent/dependent
 setlist = np.split(dataset, [1500,1850])
-training_set = setlist[0]
-test_set = setlist[1]
-validation_set = setlist[2]
+targetlist = []
 
-# Rewrite target values in trainingset
-for x in range(training_set.shape[0]):
-	training_set[x,3] = 0.75 if training_set[x,3] == 1 else 0.25
+for i in range(len(setlist)):
+	# Create targetlist
+	targetlist.append(np.delete(setlist[i],np.s_[:3],1))
 
-# Create network
-net = ann.Network(inodes = 3,hnodes = [10,10],onodes = 1,func = 'sig')
+	# Rewrite target
+	for t in range(targetlist[i].shape[0]):
+		targetlist[i][t,0] = 0.75 if targetlist[i][t,0] == 1 else 0.25
 
-# Train network
-net.training(training_set,[3])
+	# Create setlist
+	setlist[i] = np.delete(setlist[i],np.s_[3],1)
 
-# print(training_set[:,3])
+net = ann.Network(inodes=3,hnodes=[10,10],onodes=1,func='sig')
+
+net.training(setlist[0],targetlist[0])

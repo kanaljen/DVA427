@@ -40,13 +40,10 @@ class Network(object):
         n_nodes = len(self.hlayer[0].values)
         i_edges = len(self.ilayer.values)        
 
-        for i in range(0,len(t_set)-700):
-            if t_answ[i] == 1:
-                target = 0.75
-            else:
-                target = 0.25
+        for i in range(0,len(t_set)):
+            target = t_answ[i]
 
-            self.olayer.values = classify(t_set[i])
+            self.olayer.values = self.classify(t_set[i])
             delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
             sum_w_delta = np.empty([h_layers,n_nodes])
             delta_hidden = np.empty([h_layers,n_nodes])
@@ -126,7 +123,8 @@ class Network(object):
             prelayer = np.transpose(self.ilayer.values)
 
         # Write output
-        self.olayer.values = self.__activ_func(self.func,np.dot(prelayer,self.olayer.weights))
+        for node in range(self.olayer.values.shape[0]):
+            self.olayer.values[node] = self.__activ_func(self.func,np.dot(prelayer,np.transpose(self.olayer.weights[node,:])))
 
         return self.olayer.values
 
