@@ -19,6 +19,25 @@ for i in range(len(setlist)):
 	# Create setlist
 	setlist[i] = np.delete(setlist[i],np.s_[3],1)
 
-net = ann.Network(inodes=3,hnodes=[10,10],onodes=1,func='sig')
+# Instance Network
+net = ann.Network(inodes=3,hnodes=[5,5,5,5],onodes=1,func='sig')
 
+# Train network
 net.training(setlist[0],targetlist[0])
+
+
+preformance = 0
+
+# Test cases
+for i in range(setlist[1].shape[0]):
+
+	result = net.classify(setlist[1][i,:])
+
+	if result.item(0) >= 0.5:
+		if targetlist[1].item(i) == 0.75:
+			preformance += 1
+	else:
+		if targetlist[1].item(i) == 0.25:
+			preformance += 1
+
+print('Testset preformance: {:.4} %'.format((preformance/setlist[1].shape[0])*100))

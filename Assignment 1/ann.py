@@ -43,13 +43,14 @@ class Network(object):
         for i in range(0,len(t_set)):
             target = t_answ[i]
 
-            self.olayer.values = self.classify(t_set[i])
+            self.classify(t_set[i])
             delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
             sum_w_delta = np.empty([h_layers,n_nodes])
             delta_hidden = np.empty([h_layers,n_nodes])
             delta_weights = np.empty([h_layers+1,n_nodes,n_nodes])
 
-            # Loop number of hidden layers
+
+            # Loop number of layers
             for j in range(len(self.hlayer)+1,0,-1):
 
                 if ((j == h_layers+1) & (j > 0)):
@@ -67,11 +68,11 @@ class Network(object):
                             for b in range(0,n_nodes):
                                 delta_weights[j-1,k,b] = n*delta_hidden[[j-1],[k]]*self.hlayer[j-2].values[b]
                                 #self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
-                                sum_w_delta[[j-2],[b]] = sum_w_delta[[j-2],[b]]+delta_hidden[[j-1],[k]]*self.hlayer[j-1].weights[b]
+                                sum_w_delta[j-2,b] += delta_hidden[j-1,k]*self.hlayer[j-1].weights[k,b]
                         else:
                             #Loop number of incoming inputs to hidden layers
                             for b in range(0,i_edges):
-                                delta_weights[j-1,k,b] = n*delta_hidden[[j-1],[k]]*t_set[b]
+                                delta_weights[j-1,k,b] = n*delta_hidden[j-1,k]*t_set[i,b]
                                 #self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
                                 #sum_w_delta[[j],[b]] = sum_w_delta[[j],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
                                 
@@ -83,17 +84,23 @@ class Network(object):
             
             # Update weights in all layers
             for j in range(len(self.hlayer)+1,0,-1):
+
                 for k in range(0,n_nodes): 
                     if ((j == h_layers+1) & (j > 0)):
                         self.olayer.weights[[0],[k]] = self.olayer.weights[[0],[k]]+delta_weights[j-1,0,k]
+                    elif j == 1:
+                        for m in range(0,i_edges): 
+
+                            self.hlayer[j-1].weights[k,m] = self.hlayer[j-1].weights[k,m]+delta_weights[j-1,k,m]
                     else:
                         for m in range(0,n_nodes): 
-                            self.hlayer[j-1].weights[k,m] = self.hlayer[j-1].weights[k,m]+delta.weights[j-1,k,m]
+
+                            self.hlayer[j-1].weights[k,m] = self.hlayer[j-1].weights[k,m]+delta_weights[j-1,k,m]
                     
 
                             
             
-        E_d = (1/2)*np.power((target-self.olayer.values),2)
+        E_d = (1/2)*np.power((target - self.olayer.values),2)
         return E_d     
         
     def classify(self,x):
