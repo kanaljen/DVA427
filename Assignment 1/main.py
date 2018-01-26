@@ -33,7 +33,7 @@ for i in range(setlist[1].shape[0]):
 
 	result = net.classify(setlist[1][i,:])
 
-	if result.item(0) >= 0.5:
+	if result >= 0.5:
 		if targetlist[1].item(i) == 0.75:
 			preformance += 1
 	else:

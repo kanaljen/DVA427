@@ -44,6 +44,8 @@ class Network(object):
             target = t_answ[i]
 
             self.classify(t_set[i])
+
+
             delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
             sum_w_delta = np.empty([h_layers,n_nodes])
             delta_hidden = np.empty([h_layers,n_nodes])
@@ -117,21 +119,19 @@ class Network(object):
         # Loop hidden layers, for each determine previous layer 
         for i in range(0,len(self.hlayer)): 
 
-            prelayer = np.transpose(self.ilayer.values) if i == 0 else np.transpose(self.hlayer[i-1].values)
+            prelayer = self.ilayer.values if i == 0 else self.hlayer[i-1].values
 
-            # Loop nodes in a layer
-            for j in range(0,len(self.hlayer[i].values)): # Loop nodes
-                self.hlayer[i].values[j] = self.__activ_func(self.func,np.dot(prelayer,self.hlayer[i].weights[j]))
+            self.hlayer[i].values = np.matmul(prelayer,np.transpose(self.hlayer[i].weights))
+
 
         # Determine previous layer for output
         if len(self.hlayer) != 0:
-            prelayer = np.transpose(self.hlayer[len(self.hlayer)-1].values) 
+            prelayer = self.hlayer[-1].values 
         else: 
-            prelayer = np.transpose(self.ilayer.values)
+            prelayer = self.ilayer.values
 
         # Write output
-        for node in range(self.olayer.values.shape[0]):
-            self.olayer.values[node] = self.__activ_func(self.func,np.dot(prelayer,np.transpose(self.olayer.weights[node,:])))
+        self.olayer.values = self.__activ_func(self.func,np.matmul(prelayer,np.transpose(self.olayer.weights)))
 
         return self.olayer.values
 
