@@ -1,111 +1,103 @@
 import numpy as np
 from random import uniform as uf
 
-class Network(object):
-    """ A neural network""" # TODO: Add description
 
-    def __init__(self, inodes = 1,hnodes = [],onodes = 1,func = None):
+class Network(object):
+    """ A neural network"""  # TODO: Add description
+
+    def __init__(self, inodes=1, hnodes=[], onodes=1, func=None):
 
         self.accurcy = 0
         self.hlayer = []
         self.func = func
 
         # Create input layer
-        self.ilayer = Layer(size = inodes)
+        self.ilayer = Layer(size=inodes)
 
         # Create output layer
-        if len(hnodes) > 0: incedges = hnodes[len(hnodes)-1]
-        else: incedges = inodes
-        self.olayer = Layer(size = onodes,incedges = incedges)
+        if len(hnodes) > 0:
+            incedges = hnodes[len(hnodes) - 1]
+        else:
+            incedges = inodes
+        self.olayer = Layer(size=onodes, incedges=incedges)
 
         # Create hidden layers
-        for x in range(0,len(hnodes)):
-            if x == 0: incedges = inodes
-            else: incedges = hnodes[x-1]
-            self.hlayer.append(Layer(size = hnodes[x], incedges = incedges))
+        for x in range(0, len(hnodes)):
+            if x == 0:
+                incedges = inodes
+            else:
+                incedges = hnodes[x - 1]
+            self.hlayer.append(Layer(size=hnodes[x], incedges=incedges))
 
-    def __activ_func(self,func,vector):
+    def __activ_func(self, func, vector):
         """ Activation functions for the network, called by the classify method """
         if func == 'tanh':
             return np.tanh(vector)
         elif func == 'sig':
             return 1 / (1 + np.exp(-vector))
         else:
-            return vector            
+            return vector
 
-    def training(self,t_set,t_answ):
-        """TODO"""
-        n = 0.1 # n defines the learning rate
-        h_layers = len(self.hlayer)
-        n_nodes = len(self.hlayer[0].values)
-        i_edges = len(self.ilayer.values)        
+    def training(self, tset, depcol=[], rate=0.1, target_acc=100):
+        # Check dim of input and output
+        if (tset.shape[1] - len(depcol)) != len(self.ilayer.values):
+            print("Network-input size doesn't match trainingset-size")
+            return 0
+        elif len(depcol) != len(self.olayer.values):
+            print("Network-output size doesn't match number of dependent variables")
+            return 0
 
-        for i in range(0,len(t_set)):
-            target = t_answ[i]
+        # Create dependent set, from colums in depcol
+        depset = np.empty([tset.shape[0], len(depcol)])
+        for i in range(len(depcol)):
+            depset[:, i] = tset[:, depcol[i]]
 
-            self.classify(t_set[i])
+        # Create independent set, from other columns
+        inset = np.empty([tset.shape[0], tset.shape[1] - len(depcol)])
+        inindex = 0
+        for i in range(tset.shape[1]):
+            if i in depcol:
+                continue
+            else:
+                inset[:, inindex] = tset[:, i]
+                inindex += 1
 
+        # Create lists of weight and value delta-matrices for hidden-layers
+        # First indexes 
+        wdelta = []
+        vdelta = []
+        for i in range(len(self.hlayer)):
+            wdelta.append(np.empty([self.hlayer[i].values.shape[0], self.hlayer[i].weights.shape[1]]))
+            vdelta.append(np.empty([self.hlayer[i].values.shape[0], ]))
 
-            delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
-            sum_w_delta = np.empty([h_layers,n_nodes])
-            delta_hidden = np.empty([h_layers,n_nodes])
-            delta_weights = np.empty([h_layers+1,n_nodes,n_nodes])
+        # Append weight and value delta-matrices for output
+        wdelta.append(np.empty([self.olayer.values.shape[0], self.olayer.weights.shape[1]]))
+        vdelta.append(np.empty([self.olayer.values.shape[0], ]))
 
+        # Loop samples
+        for sample in range(inset.shape[0]):
 
-            # Loop number of layers
-            for j in range(len(self.hlayer)+1,0,-1):
+            # Classify the sample
+            print(self.classify(inset[sample, :]))
 
-                if ((j == h_layers+1) & (j > 0)):
-                    # Loop to get weights for output layer        
-                    for a in range(0,n_nodes):
-                        delta_weights[j-1,0,a] = n*delta_output*self.hlayer[j-2].values[a]                        
-                        sum_w_delta[[j-2],[a]] = delta_output*self.olayer.weights[[0],[a]]                        
-                else:
-                    # Loop number of nodes per hidden layer
-                    for k in range(0,n_nodes):                
-                        delta_hidden[[j-1],[k]] = self.hlayer[j-1].values[k]*(1-self.hlayer[j-1].values[k])*sum_w_delta[[j-1],[k]]
+            # Loop outputs from classify to calculate value-delta for output-layer
+            for v in range(self.olayer.values.shape[0]):
+                nodevalue = self.olayer.values[v]
+                # Calculate value delta for each node
+                vdelta[len(vdelta) - 1][v] = nodevalue * \
+                    (1 - nodevalue) * (depset[sample, v] - nodevalue)
 
-                        if j > 1:
-                            #Loop number of incoming nodes to hidden layers
-                            for b in range(0,n_nodes):
-                                delta_weights[j-1,k,b] = n*delta_hidden[[j-1],[k]]*self.hlayer[j-2].values[b]
-                                #self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
-                                sum_w_delta[j-2,b] += delta_hidden[j-1,k]*self.hlayer[j-1].weights[k,b]
-                        else:
-                            #Loop number of incoming inputs to hidden layers
-                            for b in range(0,i_edges):
-                                delta_weights[j-1,k,b] = n*delta_hidden[j-1,k]*t_set[i,b]
-                                #self.hlayer[j].weights[[k],[b]] = n*delta_hidden[[j],[k]]*self.hlayer[j-1].values[b]
-                                #sum_w_delta[[j],[b]] = sum_w_delta[[j],[b]]+delta_hidden[[j],[k]]*self.hlayer[j].weights[b]
-                                
-                # Updating sum_w_delta 
-                for c in range (0,n_nodes):         
-                    if j > 1:
-                        sum_w_delta[[j-2],[c]] = sum_w_delta[[j-2],[c]]*self.hlayer[j-2].values[c]
-                    
-            
-            # Update weights in all layers
-            for j in range(len(self.hlayer)+1,0,-1):
+            # Loop hidden layer and calculate value delta for each
+            for l in range(len(self.hlayer)):
+                # Loop nodes in each layer
+                for n in range(self.hlayer[l].values.shape[0]):
+                    nodevalue = self.hlayer[l].values[n]
+                    # Calculate value delta for each node
+                    if l == (len(self.hlayer) - 1):  # Last hidden-layer
+                        pass
+                        #vdelta[l][n] = nodevalue*(1-nodevalue)*self.olayer.weights[n,]
 
-                for k in range(0,n_nodes): 
-                    if ((j == h_layers+1) & (j > 0)):
-                        self.olayer.weights[[0],[k]] = self.olayer.weights[[0],[k]]+delta_weights[j-1,0,k]
-                    elif j == 1:
-                        for m in range(0,i_edges): 
-
-                            self.hlayer[j-1].weights[k,m] = self.hlayer[j-1].weights[k,m]+delta_weights[j-1,k,m]
-                    else:
-                        for m in range(0,n_nodes): 
-
-                            self.hlayer[j-1].weights[k,m] = self.hlayer[j-1].weights[k,m]+delta_weights[j-1,k,m]
-                    
-
-                            
-            
-        E_d = (1/2)*np.power((target - self.olayer.values),2)
-        return E_d     
-        
-    def classify(self,x):
+    def classify(self, x):
         """x is a list to be classifyed by the network """
 
         # Break if size of input != x
@@ -116,29 +108,27 @@ class Network(object):
         # Convert input to array, save it in ilayer
         self.ilayer.values = np.array(x)
 
-        # Loop hidden layers, for each determine previous layer 
-        for i in range(0,len(self.hlayer)): 
-
-            prelayer = self.ilayer.values if i == 0 else self.hlayer[i-1].values
-
-            self.hlayer[i].values = np.matmul(prelayer,np.transpose(self.hlayer[i].weights))
-
+        # Loop hidden layers, for each determine previous layer
+        for i in range(0, len(self.hlayer)):
+            prelayer = self.ilayer.values if i == 0 else self.hlayer[i - 1].values
+            self.hlayer[i].values = np.matmul(
+                prelayer, np.transpose(self.hlayer[i].weights))
 
         # Determine previous layer for output
-        if len(self.hlayer) != 0:
-            prelayer = self.hlayer[-1].values 
-        else: 
-            prelayer = self.ilayer.values
+        prelayer = self.hlayer[-1].values if len(
+            self.hlayer) != 0 else self.ilayer.values
 
         # Write output
-        self.olayer.values = self.__activ_func(self.func,np.matmul(prelayer,np.transpose(self.olayer.weights)))
+        self.olayer.values = self.__activ_func(
+            self.func, np.matmul(prelayer, np.transpose(self.olayer.weights)))
 
         return self.olayer.values
+
 
 class Layer(object):
     """ A layer in the neural network """
 
-    def __init__(self, size, incedges = 0, func = None):
-        self.values = np.array(size *[0.])
-        self.weights = np.random.rand(size,incedges)
+    def __init__(self, size, incedges=0, func=None):
+        self.values = np.array(size * [0.])
+        self.weights = np.random.rand(size, incedges)
         self.func = func

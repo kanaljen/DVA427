@@ -4,8 +4,12 @@ import numpy as np
 # Load dataset from file
 dataset = np.loadtxt('titanic.dat',delimiter=',')
 
+for t in range(dataset.shape[0]):
+		dataset[t,3] = 0.75 if dataset[t,3] == 1 else 0.25
 # Split dataset, independent/dependent
 setlist = np.split(dataset, [1500,1850])
+
+"""
 targetlist = []
 
 for i in range(len(setlist)):
@@ -19,11 +23,14 @@ for i in range(len(setlist)):
 	# Create setlist
 	setlist[i] = np.delete(setlist[i],np.s_[3],1)
 
+"""
+
 # Instance Network
-net = ann.Network(inodes=3,hnodes=[5,5,5,5],onodes=1,func='sig')
+net = ann.Network(inodes=3,hnodes=[10,10,10,10],onodes=1,func='sig')
 
 # Train network
-net.training(setlist[0],targetlist[0])
+
+net.training(tset = setlist[0], depcol=[3])
 
 
 preformance = 0
