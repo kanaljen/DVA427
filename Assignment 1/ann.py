@@ -49,7 +49,9 @@ class Network(object):
             #print(type(self.olayer.values[0].item(0)))
             #print(self.olayer.values[0].item(0))
 
-            delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
+            #delta_output = (target-self.olayer.values)*self.olayer.values*(1-self.olayer.values)
+            delta_output = np.dot(np.dot(self.olayer.values, 1-self.olayer.values),target-self.olayer.values)
+            print('delta',delta_output)
             sum_w_delta = np.empty([h_layers,n_nodes])
             delta_hidden = np.empty([h_layers,n_nodes])
             if len(self.ilayer.values) > len(self.hlayer[0].values):
@@ -117,8 +119,8 @@ class Network(object):
         
     def classify(self,x):
         """x is a list to be classifyed by the network """
-        print(len(x))
-        print(len(self.ilayer.values))
+        print(x.shape)
+        print(self.ilayer.values.shape)
         # Break if size of input != x
         if len(self.ilayer.values) != len(x)+1:
             print("Network-input size doesn't match argument-size")
@@ -165,6 +167,6 @@ class Layer(object):
     """ A layer in the neural network """
 
     def __init__(self, size, incedges = 0, func = None):
-        self.values = np.array((size+1) *[0.])
+        self.values = np.array([size+1,1])
         self.weights = np.random.rand(size,incedges+1)
         self.func = func
