@@ -1,3 +1,4 @@
+import classifier
 import numpy as np
 
 # Load dataset from file
@@ -6,7 +7,7 @@ import numpy as np
 dataset = np.loadtxt('iris_data.dat', delimiter=',',usecols=(0,1,2,3), unpack=True)
 f_name = np.loadtxt('iris_data.dat', delimiter=',',usecols=(4), dtype = str, unpack=True)
 print(len(dataset[:,0]))
-print(len(dataset[0]))
+print(len(dataset[0,:]))
 #print(type(x1[0]))
 #print(x1.shape)
 #print(x1[0].shape)
@@ -14,7 +15,7 @@ print(len(dataset[0]))
 #print(x3.shape)
 #print(x4.shape)
 #print(f_name.shape)
-#print(dataset.shape)
+#print(dataset.shape)   	
 #tset = np.array([dataset])
 #print(type(tset[0][0]))
 #print(x1)
@@ -22,3 +23,9 @@ print(len(dataset[0]))
 #x1_max = np.amax(x1)
 #print(x1_min)
 #print(x1_max)
+
+fuzzy = classifier.Fuzzy_classifier(amount_of_flowers=150)
+a = fuzzy.test(dataset)
+
+for i in range(150):
+	print(fuzzy.iris[i].rule)
