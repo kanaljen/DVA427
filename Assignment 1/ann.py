@@ -74,9 +74,5 @@ class Network(object):
             for layer in range(1,len(self.X)):
                 self.W[layer] += dW[layer]
 
-            E = 0.5 * ( (target_set[sample] - netout)**2)
-            Etot = np.sum(E)
-          
-            print(Etot)
 
 

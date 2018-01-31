@@ -13,7 +13,7 @@ setlist = np.split(dataset, [1500])
 
 
 # Instance Network
-net = ann.Network([3,10,10,10,1])
+net = ann.Network([3,10,10,1])
 
 # Train network
 net.training(setlist[0][:,0:3], setlist[0][:,3:4])
