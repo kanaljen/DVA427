@@ -1,134 +1,82 @@
 import numpy as np
-from random import uniform as uf
 
 
 class Network(object):
-    """ A neural network"""  # TODO: Add description
+    """docstring for Network"""
 
-    def __init__(self, inodes=1, hnodes=[], onodes=1, func=None):
+    def __init__(self, nodes):
 
-        self.accurcy = 0
-        self.hlayer = []
-        self.func = func
+        self.X = []
+        self.W = []
+        self.accuracy = 0
 
-        # Create input layer
-        self.ilayer = Layer(size=inodes)
+        for n in range(len(nodes)):
 
-        # Create output layer
-        if len(hnodes) > 0:
-            incedges = hnodes[len(hnodes) - 1]
-        else:
-            incedges = inodes
-        self.olayer = Layer(size=onodes, incedges=incedges)
-
-        # Create hidden layers
-        for x in range(0, len(hnodes)):
-            if x == 0:
-                incedges = inodes
+            self.X.append(np.empty(nodes[n]))
+            if n > 0:
+                self.W.append(np.random.rand(nodes[n], nodes[n - 1]))
             else:
-                incedges = hnodes[x - 1]
-            self.hlayer.append(Layer(size=hnodes[x], incedges=incedges))
+                self.W.append(0)
 
-    def __activ_func(self, func, vector):
-        """ Activation functions for the network, called by the classify method """
-        if func == 'tanh':
-            return np.tanh(vector)
-        elif func == 'sig':
-            return 1 / (1 + np.exp(-vector))
-        else:
-            return vector
+    def sigmoid(self, vector):
+        """ Sigmoid activation function """
 
-    def training(self, tset, depcol=[], rate=0.1, target_acc=100):
-        # Check dim of input and output
-        if (tset.shape[1] - len(depcol)) != len(self.ilayer.values):
-            print("Network-input size doesn't match trainingset-size")
-            return 0
-        elif len(depcol) != len(self.olayer.values):
-            print("Network-output size doesn't match number of dependent variables")
-            return 0
+        return 1 / (1 + np.exp(-vector))
 
-        # Create dependent set, from colums in depcol
-        depset = np.empty([tset.shape[0], len(depcol)])
-        for i in range(len(depcol)):
-            depset[:, i] = tset[:, depcol[i]]
+    def forward(self, input):
+        """ Feed input forward in the network """
 
-        # Create independent set, from other columns
-        inset = np.empty([tset.shape[0], tset.shape[1] - len(depcol)])
-        inindex = 0
-        for i in range(tset.shape[1]):
-            if i in depcol:
-                continue
+        self.X[0] = input
+
+        for layer in range(1, len(self.X)):
+
+            self.X[layer] = self.sigmoid(
+                np.matmul(self.X[layer - 1], np.transpose(self.W[layer])))
+
+        return self.X[-1]
+
+    def training(self, train_set, target_set, rate=0.1):
+        """ Train the waights by backpropagation (online-training) """
+
+        dX = []
+        dW = []
+
+        for n in range(len(self.X)):
+
+            if n == 0:
+                dX.append(0)
+                dW.append(0)
             else:
-                inset[:, inindex] = tset[:, i]
-                inindex += 1
+            	dX.append(np.empty(self.X[n].shape[0]))
+            	dW.append(np.empty([self.X[n].shape[0], self.X[n - 1].shape[0]]))
 
-        # Create lists of weight and value delta-matrices for hidden-layers
-        # First indexes 
-        wdelta = []
-        vdelta = []
-        for i in range(len(self.hlayer)):
-            wdelta.append(np.empty([self.hlayer[i].values.shape[0], self.hlayer[i].weights.shape[1]]))
-            vdelta.append(np.empty([self.hlayer[i].values.shape[0], ]))
+        # Loop samples/rows in trainingset
+        for sample in range(train_set.shape[0]):
 
-        # Append weight and value delta-matrices for output
-        wdelta.append(np.empty([self.olayer.values.shape[0], self.olayer.weights.shape[1]]))
-        vdelta.append(np.empty([self.olayer.values.shape[0], ]))
+            # Feed sample forward
+            netout = self.forward(train_set[sample])
+            target = target_set[sample]
 
-        # Loop samples
-        for sample in range(inset.shape[0]):
+            # Loop layers, exept input
+            for layer in range(len(self.X) - 1, 0, -1):
 
-            # Classify the sample
-            print(self.classify(inset[sample, :]))
+                if layer == len(self.X) - 1:
+                	dX[layer] = netout * (1 - netout) * (target - netout)
 
-            # Loop outputs from classify to calculate value-delta for output-layer
-            for v in range(self.olayer.values.shape[0]):
-                nodevalue = self.olayer.values[v]
-                # Calculate value delta for each node
-                vdelta[len(vdelta) - 1][v] = nodevalue * \
-                    (1 - nodevalue) * (depset[sample, v] - nodevalue)
+                else:
 
-            # Loop hidden layer and calculate value delta for each
-            for l in range(len(self.hlayer)):
-                # Loop nodes in each layer
-                for n in range(self.hlayer[l].values.shape[0]):
-                    nodevalue = self.hlayer[l].values[n]
-                    # Calculate value delta for each node
-                    if l == (len(self.hlayer) - 1):  # Last hidden-layer
-                        pass
-                        #vdelta[l][n] = nodevalue*(1-nodevalue)*self.olayer.weights[n,]
+                	backpro = np.dot(dX[layer + 1], self.W[layer + 1])
+                	dX[layer] = self.X[layer] * (1 - self.X[layer]) * backpro
 
-    def classify(self, x):
-        """x is a list to be classifyed by the network """
+                dW[layer] = rate * np.matmul(np.transpose(np.matrix(dX[layer])),np.matrix(self.X[layer - 1]))
 
-        # Break if size of input != x
-        if len(self.ilayer.values) != len(x):
-            print("Network-input size doesn't match argument-size")
-            return 0
+        	# Loop layers, change weights
+            for layer in range(1,len(self.X)):
+                self.W[layer] += dW[layer]
 
-        # Convert input to array, save it in ilayer
-        self.ilayer.values = np.array(x)
-
-        # Loop hidden layers, for each determine previous layer
-        for i in range(0, len(self.hlayer)):
-            prelayer = self.ilayer.values if i == 0 else self.hlayer[i - 1].values
-            self.hlayer[i].values = np.matmul(
-                prelayer, np.transpose(self.hlayer[i].weights))
-
-        # Determine previous layer for output
-        prelayer = self.hlayer[-1].values if len(
-            self.hlayer) != 0 else self.ilayer.values
-
-        # Write output
-        self.olayer.values = self.__activ_func(
-            self.func, np.matmul(prelayer, np.transpose(self.olayer.weights)))
-
-        return self.olayer.values
+            E = 0.5 * ( (target_set[sample] - netout)**2)
+            Etot = np.sum(E)
+          
+            print(Etot)
 
 
-class Layer(object):
-    """ A layer in the neural network """
-
-    def __init__(self, size, incedges=0, func=None):
-        self.values = np.array(size * [0.])
-        self.weights = np.random.rand(size, incedges)
-        self.func = func
