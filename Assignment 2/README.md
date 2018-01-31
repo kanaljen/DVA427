@@ -1,5 +1,5 @@
 ## Assignment 2
-Classification of Irsi data is a well known benchmark problem in machine learning research. This data set is downloadable from [ftp.ics.uci.edu/pub/machine-learning-databases](ftp.ics.uci.edu/pub/machine-learning-databases).The problem in Iris data is to classify three species of iris (setosa, versicolor and virginica) by four-dimensional attribute vectors consisting of sepal length (x1), sepal width (x2), petal length (x3) and petal width (x4). There are 50 samples of each class in this data set.
+Classification of Irsi data is a well known benchmark problem in machine learning research. This data set is downloadable from <a href="http://ftp.ics.uci.edu/pub/machine-learning-databases">ftp.ics.uci.edu/pub/machine-learning-databases</a>. The problem in Iris data is to classify three species of iris (setosa, versicolor and virginica) by four-dimensional attribute vectors consisting of sepal length (x1), sepal width (x2), petal length (x3) and petal width (x4). There are 50 samples of each class in this data set.
 We now consider a fuzzy classifier with a set of fuzzy rules to classify Iris data. The values of attributes are normalized before fuzzy processing according to
 <p align="center">
 <img src="readme/eq.png">
