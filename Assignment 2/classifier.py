@@ -54,8 +54,10 @@ class Fuzzy_classifier(object):
        		for k in range(len(tset[:, 0])):
        			self.iris[i].attributes[k] = tset[k, i]
        			self.__fuzzy_set(i, k)
-       		for m in range(4):
-       			self.iris[i].rule[m] = self.__r1(i)
+       		self.iris[i].rule[0] = self.__r1(i)
+       		self.iris[i].rule[1] = self.__r2(i)
+       		self.iris[i].rule[2] = self.__r3(i)
+       		self.iris[i].rule[3] = self.__r4(i)
        		for n in range(4):
        			if self.iris[i].rule[n] == np.amax(self.iris[i].rule):
        				self.iris[i].species = n
@@ -63,25 +65,49 @@ class Fuzzy_classifier(object):
     def classify(self, samples):
         samples
 
+    def __or_operator(x, y):
+    	result = max(x,y)
+    	return result
+
+    def __and_operator(x, y):
+    	result = min(x,y)
+    	return result
+
     def __r1(self, i):
+    	result = self.__and_operator(self.__and_operator(self.__and_operator(self.__or_operator(self.iris[i].short[0],self.iris[i].long[0]),self.__or_operator(self.iris[i].middle[1],self.iris[i].long[1])),self.__or_operator(self.iris[i].middle[2],self.iris[i].long[2])),self.iris[i].middle[3])
+    	return result
+
+    def __r2(self, i):
+    	result = self.__and_operator(self.__or_operator(self.iris[i].short[2],self.iris[i].middle[2]),self.iris[i].short[3])
+    	return result
+
+    def __r3(self, i):
+    	result = self.__and_operator(self.__and_operator(self.__or_operator(self.iris[i].short[1],self.iris[i].long[1]),self.iris[i].long[2]),self.iris[i].long[3])
+    	return result
+
+    def __r4(self, i):
+    	result = self.__and_operator(self.__and_operator(self.__and_operator((self.iris[i].middle[0],self.__or_operator(self.iris[i].short[1],self.iris[i].middle[1])),self.iris[i].short[2]),self.iris[i].long[3]))
+    	return result
+
+    """def __r1(self, i):
     	if self.iris[i].dominant_attr[0] == 0 or 2:
     		if self.iris[i].dominant_attr[1] == 1 or 2:
     			if self.iris[i].dominant_attr[2] == 1 or 2:
     				if self.iris[i].dominant_attr[3] == 1:
-    					return self.iris[i].dominant_attr[0]*self.iris[i].dominant_attr[1]*self.iris[i].dominant_attr[2]*self.iris[i].dominant_attr[3]
+    					return self.iris[i].normalized_attr[self.iris[i].dominant_attr[0]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
     	return 0
 
     def __r2(self, i):
     	if self.iris[i].dominant_attr[2] == 0 or 1:
     		if self.iris[i].dominant_attr[3] == 0:
-    			return self.iris[i].dominant_attr[2]*self.iris[i].dominant_attr[3]
+    			return self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
     	return 0
 
     def __r3(self, i):
     	if self.iris[i].dominant_attr[1] == 0 or 1:
     		if self.iris[i].dominant_attr[2] == 2:
     			if self.iris[i].dominant_attr[3] == 2:
-    				return self.iris[i].dominant_attr[1]*self.iris[i].dominant_attr[2]*self.iris[i].dominant_attr[3]
+    				return self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
     	return 0
 
     def __r4(self, i):
@@ -89,18 +115,18 @@ class Fuzzy_classifier(object):
     		if self.iris[i].dominant_attr[1] == 0 or 1:
     			if self.iris[i].dominant_attr[2] == 0:
     				if self.iris[i].dominant_attr[3] == 2:
-    					return self.iris[i].dominant_attr[0]*self.iris[i].dominant_attr[1]*self.iris[i].dominant_attr[2]*self.iris[i].dominant_attr[3]
-    	return 0
+    					return self.iris[i].normalized_attr[self.iris[i].dominant_attr[0]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
+    	return 0"""
 
 class Flower(object):
     """ A layer in the neural network """
 
     def __init__(self, sepal_length=0, sepal_with=0, petal_length=0, petal_width=0, name=None):
-        self.attributes = np.empty(shape=(4, 1))
-        self.normalized_attr = np.empty(shape=(4, 1))
-        self.short = np.empty(shape=(4, 1))
-        self.middle = np.empty(shape=(4, 1))
-        self.long = np.empty(shape=(4, 1))
-        self.dominant_attr = np.empty(shape=(4, 1))
+        self.attributes = np.empty(shape=(4, 1)) # Holds the values of x1 - x4
+        self.normalized_attr = np.empty(shape=(4, 1)) # Holds the normalized values of x1 - x4
+        self.short = np.empty(shape=(4, 1)) # What is the degree of short in x1 - x4
+        self.middle = np.empty(shape=(4, 1)) # Degree middle
+        self.long = np.empty(shape=(4, 1))	# Degree long
+        self.dominant_attr = np.empty(shape=(4, 1), dtype = int) # Tells which attr. that is dominant in x1-x4
         self.rule = np.empty(shape=(4, 1))
-        self.species = 0
+        self.species = 0 # What species is this flower
