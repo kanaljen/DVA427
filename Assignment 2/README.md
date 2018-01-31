@@ -1,12 +1,14 @@
 ## Assignment 2
 Classification of Irsi data is a well known benchmark problem in machine learning research. This data set is downloadable from [ftp.ics.uci.edu/pub/machine-learning-databases](ftp.ics.uci.edu/pub/machine-learning-databases).The problem in Iris data is to classify three species of iris (setosa, versicolor and virginica) by four-dimensional attribute vectors consisting of sepal length (x1), sepal width (x2), petal length (x3) and petal width (x4). There are 50 samples of each class in this data set.
 We now consider a fuzzy classifier with a set of fuzzy rules to classify Iris data. The values of attributes are normalized before fuzzy processing according to
-
-![](readme/eq.png)
-
+<p align="center">
+<img src="readme/eq.png">
+</p>
 where max(i) and min(i) denote the maximum and minimum values of attribute xi respectively. Every attribute of the fuzzy classifier is assigned with three linguistic terms (fuzzy sets): short, middle and long. With normalized attribute values, the membership functions of these fuzzy sets for all the four attributes are depicted in the figure below (assume the membership functions for different attributes are identical).
-
-![](readme/graph.png)
+<p align="center">
+<img src="readme/graph.png">
+</p>
+___
 
 Further we suppose that the following set of fuzzy rules have been defined by experts to classify iris data. The membership functions used by these rules are those depicted in the figure above.
 
@@ -19,6 +21,7 @@ Further we suppose that the following set of fuzzy rules have been defined by ex
 **r4:** If (x1=middle) and (x2=short   middle) and (x3=short) and (x4=long)
 Then iris **versicolor**
 
+___
 
 Your assignment now is to implement this fuzzy classifier in a computer program, and you have to then apply your program to classify all the iris data and examine the classification accuracy of your fuzzy system.
 
