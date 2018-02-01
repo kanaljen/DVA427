@@ -55,12 +55,17 @@ class Fuzzy_classifier(object):
        			self.iris[i].attributes[k] = tset[k, i]
        			self.__fuzzy_set(i, k)
        		self.iris[i].rule[0] = self.__r1(i)
-       		self.iris[i].rule[1] = self.__r2(i)
-       		self.iris[i].rule[2] = self.__r3(i)
+       		self.iris[i].rule[1] = self.__r2(i) * 0.3
+       		self.iris[i].rule[2] = self.__r3(i) * 10
        		self.iris[i].rule[3] = self.__r4(i)
        		for n in range(4):
        			if self.iris[i].rule[n] == np.amax(self.iris[i].rule):
-       				self.iris[i].species = n
+       				if(n==1):
+       					self.iris[i].species = 1
+       				elif(n==2):
+       					self.iris[i].species = 3
+       				else:
+       					self.iris[i].species = 2
 
     def classify(self, samples):
         samples
@@ -73,23 +78,23 @@ class Fuzzy_classifier(object):
     	result = min(x,y)
     	return result
 
-    def __r1(self, i):
-    	result = self.__and_operator(self.__and_operator(self.__and_operator(self.__or_operator(self.iris[i].short[0],self.iris[i].long[0]),self.__or_operator(self.iris[i].middle[1],self.iris[i].long[1])),self.__or_operator(self.iris[i].middle[2],self.iris[i].long[2])),self.iris[i].middle[3])
+   	def __r1(self, i):
+    	result = min(min(min(max(self.iris[i].short[0],self.iris[i].long[0]),max(self.iris[i].middle[1],self.iris[i].long[1])),max(self.iris[i].middle[2],self.iris[i].long[2])),self.iris[i].middle[3])
     	return result
 
     def __r2(self, i):
-    	result = self.__and_operator(self.__or_operator(self.iris[i].short[2],self.iris[i].middle[2]),self.iris[i].short[3])
+    	result = min((max(self.iris[i].short[2],self.iris[i].middle[2])),self.iris[i].short[3])
     	return result
 
     def __r3(self, i):
-    	result = self.__and_operator(self.__and_operator(self.__or_operator(self.iris[i].short[1],self.iris[i].long[1]),self.iris[i].long[2]),self.iris[i].long[3])
+    	result = min(min(max(self.iris[i].short[1],self.iris[i].long[1]),self.iris[i].long[2]),self.iris[i].long[3])
     	return result
 
     def __r4(self, i):
-    	result = self.__and_operator(self.__and_operator(self.__and_operator((self.iris[i].middle[0],self.__or_operator(self.iris[i].short[1],self.iris[i].middle[1])),self.iris[i].short[2]),self.iris[i].long[3]))
+    	result = min(min(min(self.iris[i].middle[0],max(self.iris[i].short[1],self.iris[i].middle[1])),self.iris[i].short[2]),self.iris[i].long[3])
     	return result
-
-    """def __r1(self, i):
+	"""
+    def __r1(self, i):
     	if self.iris[i].dominant_attr[0] == 0 or 2:
     		if self.iris[i].dominant_attr[1] == 1 or 2:
     			if self.iris[i].dominant_attr[2] == 1 or 2:
@@ -98,6 +103,34 @@ class Fuzzy_classifier(object):
     	return 0
 
     def __r2(self, i):
+    	if self.iris[i].dominant_attr[2] == 0 or 1:
+    		if self.iris[i].dominant_attr[3] == 0:
+    			return self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
+    	return 0
+
+    def __r3(self, i):
+    	if self.iris[i].dominant_attr[1] == 0 or 1:
+    		if self.iris[i].dominant_attr[2] == 2:
+    			if self.iris[i].dominant_attr[3] == 2:
+    				return self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
+    	return 0
+
+    def __r4(self, i):
+    	if self.iris[i].dominant_attr[0] == 1:
+    		if self.iris[i].dominant_attr[1] == 0 or 1:
+    			if self.iris[i].dominant_attr[2] == 0:
+    				if self.iris[i].dominant_attr[3] == 2:
+    					return self.iris[i].normalized_attr[self.iris[i].dominant_attr[0]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
+    	return 0
+   	
+  	def __r1(self, i):
+    	if self.iris[i].dominant_attr[1] == 1 or 2:
+    		if self.iris[i].dominant_attr[2] == 1 or 2:
+    			if self.iris[i].dominant_attr[3] == 1:
+    				return self.iris[i].normalized_attr[self.iris[i].dominant_attr[0]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[1]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
+    	return 0
+
+	def __r2(self, i):
     	if self.iris[i].dominant_attr[2] == 0 or 1:
     		if self.iris[i].dominant_attr[3] == 0:
     			return self.iris[i].normalized_attr[self.iris[i].dominant_attr[2]]*self.iris[i].normalized_attr[self.iris[i].dominant_attr[3]]
