@@ -44,7 +44,7 @@ class Salesman(object):
 
 	def __init__(self, n_cities):
 		self.route = np.arange(1,n_cities)
+		np.random.shuffle(self.route)
 		self.route = np.append(self.route,0)
 		self.route = np.insert(self.route,0,0)
-		np.random.shuffle(self.route)
 		self.tot_dist = 0
