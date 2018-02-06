@@ -6,7 +6,7 @@ You are given a map of 26 cities (named as A, B, C, D, ….X, Y, Z respectively)
 | A | B | 2 |
 | A | E | 2 |
 | A | W | 1 |
-
+| ... | ... | ... |
 
 Your assignment is to write a computer program based on the principle of dynamic programming to realize the following two functions:
 
