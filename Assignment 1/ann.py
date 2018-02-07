@@ -47,8 +47,9 @@ class Network(object):
                 dX.append(0)
                 dW.append(0)
             else:
-            	dX.append(np.empty(self.X[n].shape[0]))
-            	dW.append(np.empty([self.X[n].shape[0], self.X[n - 1].shape[0]]))
+                dX.append(np.empty(self.X[n].shape[0]))
+                dW.append(
+                    np.empty([self.X[n].shape[0], self.X[n - 1].shape[0]]))
 
         # Loop samples/rows in trainingset
         for sample in range(train_set.shape[0]):
@@ -61,18 +62,17 @@ class Network(object):
             for layer in range(len(self.X) - 1, 0, -1):
 
                 if layer == len(self.X) - 1:
-                	dX[layer] = netout * (1 - netout) * (target - netout)
+                    dX[layer] = netout * (1 - netout) * (target - netout)
 
                 else:
 
-                	backpro = np.dot(dX[layer + 1], self.W[layer + 1])
-                	dX[layer] = self.X[layer] * (1 - self.X[layer]) * backpro
+                    backpro = np.dot(dX[layer + 1], self.W[layer + 1])
+                    dX[layer] = self.X[layer] * (1 - self.X[layer]) * backpro
 
-                dW[layer] = rate * np.matmul(np.transpose(np.matrix(dX[layer])),np.matrix(self.X[layer - 1]))
+                dW[layer] = rate * \
+                    np.matmul(np.transpose(
+                        np.matrix(dX[layer])), np.matrix(self.X[layer - 1]))
 
-        	# Loop layers, change weights
-            for layer in range(1,len(self.X)):
+                # Loop layers, change weights
+            for layer in range(1, len(self.X)):
                 self.W[layer] += dW[layer]
-
-
-
