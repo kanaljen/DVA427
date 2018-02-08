@@ -15,7 +15,9 @@ We now consider the problem with a set of locations inside a city (you can find 
 
 The distance between two locations is the Euclidean Distance between the two locations:
 
-Distance(P1,P2) = MATH
+<p align="center">
+Distance(P1,P2) = <img src="readme/figure1.png">
+</p>
 
 Your assignment now is to apply an optimization algorithm, e.g. Genetic Algorithm (GA) to search for the shortest route. You need to visit all the locations once and the starting and end points must be the location number 1.
 
