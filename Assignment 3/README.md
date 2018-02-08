@@ -6,7 +6,12 @@ Given a list of cities and the distance between each other, which is the shortes
 
 We now consider the problem with a set of locations inside a city (you can find the document in the same folder in the blackboard and the name is Berlin52.tsp). These locations are represented by two coordinates (x and y) as illustrated in the table below.
 
-TABLE
+| Location ID | X | Y  |
+| :---: |:---:| :---:|
+| 1 | 565 | 575 |
+| 2 | 25 | 185 |
+| 3 | 345 | 750 |
+| ... | ... | ... |
 
 The distance between two locations is the Euclidean Distance between the two locations:
 
