@@ -13,13 +13,15 @@ setlist = np.split(dataset, [1500])
 
 
 # Instance Network
-net = ann.Network([3, 10, 10, 10, 1])
+net = ann.Network([3, 20, 1])
 
 # Train network
 net.training(setlist[0][:, 0:3], setlist[0][:, 3:4])
 
 
-preformance = 0
+dead = 0
+alive = 0
+performace = 0
 
 # Test cases
 for i in range(setlist[1].shape[0]):
@@ -27,11 +29,14 @@ for i in range(setlist[1].shape[0]):
     result = net.forward(setlist[1][i, 0:3])
 
     if result >= 0.5:
-        if setlist[1][i, 3:4] == 0.75:
-            preformance += 1
+        alive += 1
+        if setlist[1][i, 3] == 0.75:
+            performace += 1
     else:
-        if setlist[1][i, 3:4] == 0.25:
-            preformance += 1
+        dead += 1
+        if setlist[1][i, 3] == 0.25:
+            performace += 1
 
-print('Testset preformance: {:.4} %'.format(
-    (preformance / setlist[1].shape[0]) * 100))
+print('Dead: ' + str(dead))
+print('Alive: ' + str(alive))
+print('Performace: ' + str(performace / 700 * 100))

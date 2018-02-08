@@ -1,5 +1,4 @@
 import numpy as np
-from time import sleep
 
 
 class Network(object):
@@ -43,8 +42,6 @@ class Network(object):
         dX = []
         dW = []
 
-        print('Training ')
-
         # Fill delta-matricers
         for n in range(len(self.X)):
 
@@ -66,7 +63,9 @@ class Network(object):
             # Loop layers, exept input
             for layer in range(len(self.X) - 1, 0, -1):
 
+                # Output layer
                 if layer == len(self.X) - 1:
+                    # Output * (1 - output) * (target - out)
                     dX[layer] = netout * (1 - netout) * (target - netout)
 
                 else:
@@ -82,4 +81,4 @@ class Network(object):
             for layer in range(1, len(self.X)):
                 self.W[layer] += dW[layer]
 
-            sleep(0.01)
+            # sleep(0.01)
