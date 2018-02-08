@@ -1,4 +1,5 @@
 import numpy as np
+from time import sleep
 
 
 class Network(object):
@@ -38,15 +39,19 @@ class Network(object):
     def training(self, train_set, target_set, rate=0.1):
         """ Train the waights by backpropagation (online-training) """
 
+        # Create delta-matricers
         dX = []
         dW = []
 
+        print('Training ')
+
+        # Fill delta-matricers
         for n in range(len(self.X)):
 
-            if n == 0:
+            if n == 0:  # Input layer
                 dX.append(0)
                 dW.append(0)
-            else:
+            else:  # Hidden layers & Output
                 dX.append(np.empty(self.X[n].shape[0]))
                 dW.append(
                     np.empty([self.X[n].shape[0], self.X[n - 1].shape[0]]))
@@ -76,3 +81,5 @@ class Network(object):
                 # Loop layers, change weights
             for layer in range(1, len(self.X)):
                 self.W[layer] += dW[layer]
+
+            sleep(0.01)
