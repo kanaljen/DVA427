@@ -26,7 +26,7 @@ vertex[src] = 0
 
 iter = 0
 # Bellman ford
-for i in range(len(vertex)-1):
+for i in range(len(vertex) - 1):
     for v in vertex:
         for u in dist:
             if v in u:
@@ -39,7 +39,7 @@ for i in range(len(vertex)-1):
                 continue
 
 
-print('Iterations:',iter)
+print('Iterations:', iter)
 
 print('V', 'D')
 print('---')
