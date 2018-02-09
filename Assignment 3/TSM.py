@@ -31,6 +31,8 @@ class OverHead(object):
         # Returns a vector with the indexes of the best salesmen. Best salesman on index 0
         # Updates the distance route for every salesman
 
+        self.update_salesmen()
+
         for i in range(len(self.salesman)):
 
             if i == 0:
@@ -74,8 +76,6 @@ class OverHead(object):
         self.salesman[0].route = np.copy(self.salesman[a].route)
         self.salesman[1].route = np.copy(self.salesman[b].route)
 
-        test_array = np.arange(52)
-
         sequence_length = 10
 
         for i in range(len(self.offspring)):
@@ -116,11 +116,13 @@ class OverHead(object):
 
     def mutation(self, n_swaps):
 
-        test_array = np.arange(52)
         # Mutation will occur up to n times
-        for k in range(2, len(self.salesman)):
+        for k in range(4, len(self.salesman)):
+            if k < len(self.salesman) / 2:
+                r_swaps = np.random.randint(n_swaps)
+            else:
+                r_swaps = np.random.randint(len(self.city))
 
-            r_swaps = np.random.randint(n_swaps)
             for i in range(r_swaps):
                 a_swap = np.random.randint(1, len(self.salesman[0].route) - 1)
                 b_swap = np.random.randint(1, len(self.salesman[0].route) - 1)
@@ -151,19 +153,20 @@ class OverHead(object):
                     self.salesman[k].route = np.insert(
                         self.salesman[k].route, a_swap, temp_b)
 
-    def test(self, c_set):
+    def test(self, c_set, iter=100, swaps=20):
         self.add_cities(c_set)
-        self.update_salesmen()
+        self.fitness_evaluator()
 
-        for i in range(100):
-            self.fitness_evaluator()
+        results = []
+
+        for i in range(iter):
             self.crossover(self.best_salesmen[0], self.best_salesmen[1])
-            self.mutation(n_swaps=20)
+            self.mutation(n_swaps=swaps)
+            self.fitness_evaluator()
+            print(i, self.salesman[self.best_salesmen[0]].tot_dist)
+            results.append(self.salesman[self.best_salesmen[0]].tot_dist)
 
-            self.update_salesmen()
-
-
-            print(self.salesman[self.best_salesmen[0]].tot_dist)
+        return results
 
 
 class City(object):

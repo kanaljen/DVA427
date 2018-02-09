@@ -8,7 +8,6 @@ class Network(object):
 
         self.X = []
         self.W = []
-        self.accuracy = 0
 
         for n in range(len(nodes)):
 
@@ -69,7 +68,6 @@ class Network(object):
                     dX[layer] = netout * (1 - netout) * (target - netout)
 
                 else:
-
                     backpro = np.dot(dX[layer + 1], self.W[layer + 1])
                     dX[layer] = self.X[layer] * (1 - self.X[layer]) * backpro
 
@@ -80,5 +78,3 @@ class Network(object):
                 # Loop layers, change weights
             for layer in range(1, len(self.X)):
                 self.W[layer] += dW[layer]
-
-            # sleep(0.01)
