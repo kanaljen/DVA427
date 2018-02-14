@@ -21,10 +21,15 @@ for i in range(0, int(Dimension)):
 
 # Close input file
 infile.close()
+
+# Create array
 dataset = np.array(nodelist)
+
+# Test variables
 salesmen = 100
 iters = 100
 swp = 5
+
 
 TSM = TSM.OverHead(n_cities=52, n_salesmen=salesmen)
 results = TSM.test(dataset, iters, swp)

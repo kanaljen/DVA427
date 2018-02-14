@@ -33,17 +33,23 @@ class OverHead(object):
 
         self.update_salesmen()
 
+        # Sort salesmen by totaldistance
         for i in range(len(self.salesman)):
 
-            if i == 0:
+            if i == 0:  # Add dummy salesman
                 self.best_salesmen = np.array([0])
                 self.best_salesmen[0] = 0
             else:
+
+                # Compare salemen by distance
                 for k in range(len(self.salesman)):
+
+                    # range(i), Im the worst saleman
                     if k >= i:
                         self.best_salesmen = np.insert(
                             self.best_salesmen, k, i)
                         break
+                    # New position i
                     elif self.salesman[i].tot_dist < self.salesman[self.best_salesmen[k]].tot_dist:
                         self.best_salesmen = np.insert(
                             self.best_salesmen, k, i)
@@ -73,22 +79,28 @@ class OverHead(object):
 
     def crossover(self, a, b):
 
+        # Replace pre-best SM
         self.salesman[0].route = np.copy(self.salesman[a].route)
         self.salesman[1].route = np.copy(self.salesman[b].route)
 
         sequence_length = 10
 
         for i in range(len(self.offspring)):
+
+            # Inheret route, copy from parent
             self.offspring[i].route = np.copy(
                 self.salesman[np.remainder(i, 2)].route)  # Copies a route from parent 1
 
+            # Randomize seq from other parent
             sequence_start = np.random.randint(
                 1, len(self.salesman[i].route) - sequence_length)
 
+            # Create temp array
             sequence_array = np.empty(shape=(sequence_length, 1))
             index_delete = np.zeros(sequence_length)
 
             index = 0
+
             for j in range(sequence_length):
                 # Saves a sequence from parent 2 and stores it in a temporary vector
                 sequence_array[j] = self.salesman[np.remainder(
@@ -102,7 +114,7 @@ class OverHead(object):
 
                     index += 1
 
-            # Delete the duplicate cities before adding them
+            # Delete the duplicate cities before adding them (delete columns)
 
             self.offspring[i].route = np.delete(
                 self.offspring[i].route, index_delete)
@@ -112,23 +124,29 @@ class OverHead(object):
                 self.offspring[i].route = np.insert(
                     self.offspring[i].route, sequence_start + m, sequence_array[m])
 
+            # Grow up and become salesmen
             self.salesman[i + 2].route = np.copy(self.offspring[i].route)
 
     def mutation(self, n_swaps):
 
-        # Mutation will occur up to n times
+        # Mutation will occur up to n times, save 4 first
         for k in range(4, len(self.salesman)):
+            # Low risk children
             if k < len(self.salesman) / 2:
                 r_swaps = np.random.randint(n_swaps)
+            # High risk children
             else:
-                r_swaps = np.random.randint(len(self.city))
+                r_swaps = np.random.randint(len(self.city) / 2)
 
+            # Do swaps
             for i in range(r_swaps):
+                # Ramdomize citys
                 a_swap = np.random.randint(1, len(self.salesman[0].route) - 1)
                 b_swap = np.random.randint(1, len(self.salesman[0].route) - 1)
                 while a_swap == b_swap:
                     b_swap = np.random.randint(
                         1, len(self.salesman[0].route) - 1)
+                # Store city numbers from route
                 temp_a = self.salesman[k].route[a_swap]
                 temp_b = self.salesman[k].route[b_swap]
 
@@ -154,12 +172,16 @@ class OverHead(object):
                         self.salesman[k].route, a_swap, temp_b)
 
     def test(self, c_set, iter=100, swaps=20):
+        # Store city coordiantes in class, and store distances
         self.add_cities(c_set)
+
+        # Create 'whos best' - array
         self.fitness_evaluator()
 
         results = []
 
         for i in range(iter):
+
             self.crossover(self.best_salesmen[0], self.best_salesmen[1])
             self.mutation(n_swaps=swaps)
             self.fitness_evaluator()

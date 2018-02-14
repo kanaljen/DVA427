@@ -20,6 +20,7 @@ class Fuzzy_classifier(object):
 
     # Calculates min and max of all attributes
     def __min_max_fun(self, tset):
+        # Loop columns
         for i in range(len(tset[:, 0])):
             self.x_min[i] = np.amin(tset[i, :])
             self.x_max[i] = np.amax(tset[i, :])
@@ -31,20 +32,30 @@ class Fuzzy_classifier(object):
 
 
     def __attr_func(self, x, i, k):
+        # Calculate ahort/middle/long accordning to graph
         self.iris[i].short[k] = 1 - ((5 / 3) * x) if x < 0.6 else 0
         self.iris[i].middle[k] = (5 / 3) * x if x < 0.6 else 2.5 - 2.5 * x
         self.iris[i].long[k] = 2.5 * x - 1.5 if x > 0.6 else 0
 
     def test(self, tset):
         self.__min_max_fun(tset)
+        # Loop dataset
         for i in range(len(tset[0])):
+
+            # Loop dataset and copy attributes
             for k in range(len(tset[:, 0])):
+                # COPY attributes
                 self.iris[i].attributes[k] = tset[k, i]
+                # Normalize and calculate short/medium/long
                 self.__fuzzy_set(i, k)
+
+            # Apply rules for all flowers
             self.iris[i].rule[0] = self.__r1(i)
             self.iris[i].rule[1] = self.__r2(i) * 0.3
             self.iris[i].rule[2] = self.__r3(i) * 10
             self.iris[i].rule[3] = self.__r4(i)
+
+            # Check for flower spicies
             for n in range(4):
                 if self.iris[i].rule[n] == np.amax(self.iris[i].rule):
                     if(n == 1):
