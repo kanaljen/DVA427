@@ -26,9 +26,9 @@ infile.close()
 dataset = np.array(nodelist)
 
 # Test variables
-salesmen = 100
+salesmen = 500
 iters = 100
-swp = 5
+swp = 1
 
 
 TSM = TSM.OverHead(n_cities=52, n_salesmen=salesmen)
