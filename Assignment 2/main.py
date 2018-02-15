@@ -18,4 +18,4 @@ for i in range(len(dataset[0, :])):
         right_answer += 1
 
 print('Answer is =', right_answer)
-print('Accuracy of', right_answer / 150, '%')
+print('Accuracy of', right_answer / 150 * 100, '%')

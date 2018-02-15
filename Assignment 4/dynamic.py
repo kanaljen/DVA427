@@ -1,47 +1,56 @@
-import numpy as np
+from numpy import loadtxt
 
 
 # Load dataset from file
-dataset = np.loadtxt('city.txt', dtype='str', skiprows=3)
+dataset = loadtxt('city.txt', dtype='str', skiprows=3)
 
-# Build vertex dict
-vertex = {}
+# Build node-dict
+nodes = {}
 for e in dataset:
-    if e[0] not in vertex:
-        vertex[e[0]] = 100
-    elif e[1] not in vertex:
-        vertex[e[1]] = 100
+    if e[0] not in nodes:
+        nodes[e[0]] = 100
+    elif e[1] not in nodes:
+        nodes[e[1]] = 100
     else:
         continue
 
-# Build distance dict
-dist = {}
+# Build edge-dict
+edges = {}
 for e in dataset:
     c = e[1] + e[0]
-    dist[c] = int(e[2])
+    edges[c] = int(e[2])
 
-# Set source vertex
+# Set source node
 src = 'F'
-vertex[src] = 0
+nodes[src] = 0
 
 iter = 0
+edited = 1
 # Bellman ford
-for i in range(len(vertex) - 1):
-    for v in vertex:
-        for u in dist:
+for i in range(len(nodes) - 1):
+    if edited == 0:
+        break
+    else:
+        edited = 0
+    # Loop nodes
+    for v in nodes:
+        # Loop edges
+        for u in edges:
+            iter += 1
+            # If node v in edge u
             if v in u:
-                w = dist[u]
-                iter += 1
+                w = edges[u]
                 u = u.replace(v, "")
-                if vertex[v] > vertex[u] + w:
-                    vertex[v] = vertex[u] + w
+                if nodes[v] > nodes[u] + w:
+                    nodes[v] = nodes[u] + w
+                    edited = 1
+            # If v not in u
             else:
                 continue
-
 
 print('Iterations:', iter)
 
 print('V', 'D')
 print('---')
-for v in vertex:
-    print(v, vertex[v])
+for v in nodes:
+    print(v, nodes[v])

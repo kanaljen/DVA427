@@ -68,7 +68,7 @@ class Network(object):
                     dX[layer] = netout * (1 - netout) * (target - netout)
 
                 else:
-                    backpro = np.dot(dX[layer + 1], self.W[layer + 1])
+                    backpro = dX[layer + 1] * self.W[layer + 1]
                     dX[layer] = self.X[layer] * (1 - self.X[layer]) * backpro
 
                 dW[layer] = rate * \

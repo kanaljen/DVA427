@@ -21,6 +21,7 @@ net.training(setlist[0][:, 0:3], setlist[0][:, 3:4])
 
 dead = 0
 alive = 0
+ralive = 0
 performace = 0
 
 # Test cases
@@ -32,11 +33,15 @@ for i in range(setlist[1].shape[0]):
         alive += 1
         if setlist[1][i, 3] == 0.75:
             performace += 1
+            ralive += 1
+
     else:
         dead += 1
         if setlist[1][i, 3] == 0.25:
             performace += 1
 
+
+print(alive/210)
 print('Dead: ' + str(dead))
 print('Alive: ' + str(alive))
 print('Performace: ' + str(performace / 700 * 100))

@@ -133,10 +133,14 @@ class OverHead(object):
         for k in range(4, len(self.salesman)):
             # Low risk children
             if k < len(self.salesman) / 2:
-                r_swaps = np.random.randint(n_swaps)
+                percent_chance = np.random.randint(100)
+                if percent_chance < 50:
+                    r_swaps = 1
+                else:
+                    r_swaps = 0
             # High risk children
             else:
-                r_swaps = np.random.randint(len(self.city) / 2)
+                r_swaps = np.random.randint(2,4)
 
             # Do swaps
             for i in range(r_swaps):
@@ -181,8 +185,9 @@ class OverHead(object):
         results = []
 
         for i in range(iter):
-
+            # Create children
             self.crossover(self.best_salesmen[0], self.best_salesmen[1])
+            # Mutate children
             self.mutation(n_swaps=swaps)
             self.fitness_evaluator()
             print(i, self.salesman[self.best_salesmen[0]].tot_dist)
