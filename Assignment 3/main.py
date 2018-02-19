@@ -26,18 +26,18 @@ infile.close()
 dataset = np.array(nodelist)
 
 # Test variables
-salesmen = 500
-iters = 100
-swp = 1
+salesmen = 200
+offsprings = 20
+iters = 10000
 
 
-TSM = TSM.OverHead(n_cities=52, n_salesmen=salesmen)
-results = TSM.test(dataset, iters, swp)
+TSM = TSM.OverHead(n_cities=52, n_salesmen=salesmen, n_offsprings=offsprings)
+results = TSM.test(dataset, iters)
 
 plt.plot(results)
 plt.xlabel('Iterations')
 plt.ylabel('Distance')
-titl = 'Smen:' + str(salesmen) + ', Iter: ' + \
-    str(iters) + ', Swap: ' + str(swp)
+titl = 'Smen:' + str(salesmen) + ', Ospring: ' + \
+    str(offsprings) + ', Iter: ' + str(iters)
 plt.title(titl)
 plt.show()
