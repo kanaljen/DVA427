@@ -1,4 +1,5 @@
 from math import cos, sin
+import numpy as np
 
 
 def simulate(force, x, x_dot, theta, theta_dot):
@@ -24,11 +25,11 @@ def simulate(force, x, x_dot, theta, theta_dot):
 
     # Update the four state variables, using Euler's method.
 
-    state = {}
-    state[pos] = x + dt * x_dot
-    state[angle] = x_dot + dt * xacc
-    state[velocity] = theta + dt * theta_dot
-    state[anglev] = theta_dot + dt * thetaacc
+    state = np.empty(4, 1)
+    state[0] = x + dt * x_dot
+    state[1] = x_dot + dt * xacc
+    state[2] = theta + dt * theta_dot
+    state[3] = theta_dot + dt * thetaacc
 
     return state
 
