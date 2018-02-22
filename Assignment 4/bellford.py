@@ -22,7 +22,7 @@ edges = {}
 for e in dataset:
     c = e[1] + e[0]
     edges[c] = int(e[2])
-
+print(edges)
 
 # Set source node
 src = 'F'
@@ -33,6 +33,7 @@ iter = 0
 edited = 1
 # Bellman ford
 for i in range(len(nodes) - 1):
+    iter += 1
     if edited == 0:
         break
     else:
@@ -41,7 +42,6 @@ for i in range(len(nodes) - 1):
     for v in nodes:
         # Loop edges
         for u in edges:
-            iter += 1
             # If node v in edge u
             if v in u:
                 w = edges[u]
@@ -56,7 +56,7 @@ for i in range(len(nodes) - 1):
 
 print('Iterations:', iter, '\n')
 
-print('V', 'D', 'P')
+print('N', 'D', 'P')
 print('------')
 for v in nodes:
     print(v, nodes[v], paths[v])
