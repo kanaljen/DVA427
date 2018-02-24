@@ -37,6 +37,7 @@ results = TSM.test(dataset, iters)
 plt.plot(results)
 plt.xlabel('Iterations')
 plt.ylabel('Distance')
+
 titl = 'Smen:' + str(salesmen) + ', Ospring: ' + \
     str(offsprings) + ', Iter: ' + str(iters)
 plt.title(titl)
